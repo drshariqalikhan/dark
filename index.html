@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IWQU Dark Screener</title>
+    
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href='data:application/json;base64,ewogICJuYW1lIjogIklXUVUgU2NyZWVuZXIiLAogICJzaG9ydF9uYW1lIjogIklXUVUiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAiM3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzEyMTIxMiIsCiAgInRoZW1lX2NvbG9yIjogIiMwMGM0YTciLAogICJpY29ucyI6IFtdCn0='>
+    
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        /* --- Dark Theme Overrides --- */
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #b5b5b5;
+            --border-color: #333;
+            --accent: #00d1b2;
+            --pos: #23d160;
+            --neg: #ff3860;
+        }
+
+        body, html {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Bulma Dark Mode Overrides */
+        .title, .subtitle, .label, strong { color: var(--text-main) !important; }
+        
+        .box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .table {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+        .table thead td, .table thead th {
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--accent);
+            white-space: nowrap;
+        }
+        .table td, .table th {
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+        .table.is-striped tbody tr:not(.is-selected):nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        .table.is-hoverable tbody tr:not(.is-selected):hover {
+            background-color: #333;
+        }
+
+        /* Input Fields Dark Mode */
+        .input, .button.is-static {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+        .input:focus {
+            border-color: var(--accent);
+        }
+        .button.is-static {
+            color: var(--text-muted);
+        }
+
+        .message.is-info .message-body {
+            background-color: #1c2a36;
+            color: #b5b5b5;
+            border-left-color: var(--accent);
+        }
+
+        /* Log Window */
+        .log-window {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+        .log-entry { margin-bottom: 2px; border-bottom: 1px solid #222; padding-bottom: 2px; }
+        .log-error { color: var(--neg); }
+        .log-success { color: var(--pos); }
+        .log-info { color: #3298dc; }
+        .log-warn { color: #ffdd57; }
+
+        /* Helpers */
+        a.stock-link { color: var(--accent); text-decoration: underline; }
+        .tag.is-sector { background-color: #333; color: #fff; font-size: 0.7rem; }
+        
+        .text-green { color: var(--pos); }
+        .text-red { color: var(--neg); }
+        .text-warn { color: #ffdd57; }
+
+        tr.fade-in { animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero is-small" style="background-color: #1a1a1a; border-bottom: 1px solid #333;">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title has-text-primary">
+                    <i class="fas fa-chart-pie"></i> IWQU Dark Screener
+                </h1>
+                <p class="subtitle is-6">
+                    Analyze top holdings • Value Check • Median Returns
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="section main-content">
+        <div class="container">
+            
+            <!-- Controls -->
+            <div class="level">
+                <div class="level-left">
+                    <div class="field has-addons">
+                        <p class="control">
+                            <a class="button is-static">
+                                Limit
+                            </a>
+                        </p>
+                        <p class="control">
+                            <input class="input has-text-centered" id="limitInput" type="number" value="125" min="1" max="500" style="width: 80px;">
+                        </p>
+                        <p class="control">
+                            <button id="btnScan" class="button is-primary">
+                                <span class="icon"><i class="fas fa-satellite-dish"></i></span>
+                                <span>Fetch & Scan</span>
+                            </button>
+                        </p>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="tags has-addons">
+                        <span class="tag is-dark">Status</span>
+                        <span id="statusTag" class="tag is-black" style="border: 1px solid #555;">Idle</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <progress id="progressBar" class="progress is-primary is-small" value="0" max="100" style="display:none;"></progress>
+
+            <!-- Results Table -->
+            <div class="box" style="overflow-x: auto;">
+                <table class="table is-fullwidth is-striped is-hoverable" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Sector</th>
+                            <th>Price</th>
+                            <th>100W SMA</th>
+                            <th>Med. 1Y Rtn</th>
+                            <th>Diff %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+                <p id="noResults" class="has-text-grey has-text-centered p-4" style="display:none;">
+                    No stocks found matching criteria.
+                </p>
+            </div>
+
+            <article class="message is-info is-small">
+                <div class="message-body">
+                    <strong>Logic:</strong> 
+                    1. Fetches holdings from IWQU CSV (limited by input).
+                    2. Filters for <code>Price < (SMA100 * 1.05)</code>.
+                    3. <strong>Med. 1Y Rtn:</strong> Median of discrete 1-year returns over the last 5 years.
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Log Window -->
+    <div class="log-window" id="logWindow">
+        <div class="log-entry">System ready. Click 'Fetch & Scan'.</div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Configuration ---
+        const ISHARES_CSV_URL = "https://www.ishares.com/uk/individual/en/products/270054/ishares-msci-world-quality-factor-ucits-etf/1506575576011.ajax?fileType=csv&fileName=IWQU_holdings&dataType=fund";
+        const CORS_PROXY = "https://corsproxy.io/?"; 
+        const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/";
+        
+        // --- UI Elements ---
+        const btnScan = document.getElementById('btnScan');
+        const limitInput = document.getElementById('limitInput');
+        const progressBar = document.getElementById('progressBar');
+        const statusTag = document.getElementById('statusTag');
+        const tableBody = document.querySelector('#resultsTable tbody');
+        const logWindow = document.getElementById('logWindow');
+        const noResults = document.getElementById('noResults');
+
+        // --- Logger ---
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-entry log-${type}`;
+            const time = new Date().toLocaleTimeString();
+            div.textContent = `[${time}] ${msg}`;
+            logWindow.appendChild(div);
+            logWindow.scrollTop = logWindow.scrollHeight; 
+        }
+
+        // --- Step 1: Fetch CSV ---
+        async function fetchETFHoldings(limit) {
+            log(`Fetching CSV (Top ${limit} holdings)...`, "info");
+            const proxyUrl = `${CORS_PROXY}${encodeURIComponent(ISHARES_CSV_URL)}`;
+
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("CSV Download Failed");
+                const csvText = await response.text();
+                
+                log("CSV downloaded. Parsing...", "success");
+
+                const lines = csvText.split('\n');
+                let holdings = [];
+                let tickerIdx = -1;
+                let sectorIdx = -1;
+
+                // Regex for CSV splitting (handles quotes)
+                const csvSplitRegex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+
+                for (let line of lines) {
+                    const cols = line.split(csvSplitRegex).map(c => c.trim().replace(/^"|"$/g, ''));
+
+                    // Headers
+                    if (tickerIdx === -1) {
+                        if (cols.includes('Ticker') && cols.includes('Sector')) {
+                            tickerIdx = cols.indexOf('Ticker');
+                            sectorIdx = cols.indexOf('Sector');
+                            continue;
+                        }
+                        continue;
+                    }
+
+                    // Rows
+                    if (tickerIdx !== -1 && cols.length > tickerIdx) {
+                        let ticker = cols[tickerIdx];
+                        let sector = (sectorIdx !== -1 && cols.length > sectorIdx) ? cols[sectorIdx] : 'Unknown';
+
+                        ticker = ticker.replace('/', '-'); // BRK/B -> BRK-B
+
+                        if (ticker && ticker !== '-' && !ticker.includes(' ')) {
+                            holdings.push({ symbol: ticker, sector: sector });
+                        }
+                    }
+                }
+
+                // Ensure limit is valid
+                const safeLimit = Math.max(1, Math.min(holdings.length, limit));
+                return holdings.slice(0, safeLimit);
+
+            } catch (error) {
+                log(`CSV Error: ${error.message}`, "error");
+                return [];
+            }
+        }
+
+        // --- Step 2: Fetch Stock Data ---
+        async function fetchStockData(symbol) {
+            const targetUrl = `${YAHOO_BASE}${symbol}?interval=1wk&range=5y`;
+            const proxyUrl = `${CORS_PROXY}${encodeURIComponent(targetUrl)}`;
+
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    if(response.status === 404) throw new Error("404 Not Found");
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                if (!data.chart || !data.chart.result || data.chart.result.length === 0) throw new Error("No data");
+                return data.chart.result[0];
+            } catch (error) {
+                throw new Error(error.message);
+            }
+        }
+
+        function calculateSMA(quotes, windowSize) {
+            const closes = quotes.indicators.quote[0].close;
+            const cleanCloses = closes.filter(p => p !== null);
+            if (cleanCloses.length < windowSize) throw new Error(`Data < ${windowSize}wks`);
+            const relevantData = cleanCloses.slice(-windowSize);
+            return relevantData.reduce((a, b) => a + b, 0) / windowSize;
+        }
+
+        function calculateMedianAnnualReturn(quotes) {
+            const closes = quotes.indicators.quote[0].close;
+            const cleanCloses = closes.filter(p => p !== null);
+            
+            if (cleanCloses.length < 52) return 0;
+
+            let annualReturns = [];
+            // Step backwards in 52-week increments
+            for (let i = cleanCloses.length - 1; i >= 52; i -= 52) {
+                const endPrice = cleanCloses[i];
+                const startPrice = cleanCloses[i - 52];
+                
+                if (startPrice && endPrice && startPrice > 0) {
+                    const ret = ((endPrice - startPrice) / startPrice) * 100;
+                    annualReturns.push(ret);
+                }
+            }
+
+            if (annualReturns.length === 0) return 0;
+
+            annualReturns.sort((a, b) => a - b);
+            const mid = Math.floor(annualReturns.length / 2);
+
+            if (annualReturns.length % 2 !== 0) {
+                return annualReturns[mid];
+            } else {
+                return (annualReturns[mid - 1] + annualReturns[mid]) / 2;
+            }
+        }
+
+        // --- Main Controller ---
+        async function runScanner() {
+            // Validate Input
+            let limit = parseInt(limitInput.value);
+            if (isNaN(limit) || limit < 1) limit = 150;
+            limitInput.value = limit; // Correct UI if user typed nonsense
+
+            btnScan.classList.add('is-loading');
+            btnScan.disabled = true;
+            limitInput.disabled = true;
+            tableBody.innerHTML = '';
+            statusTag.className = 'tag is-info';
+            statusTag.textContent = 'Parsing CSV...';
+            progressBar.style.display = 'block';
+            progressBar.value = 0;
+            noResults.style.display = 'none';
+            
+            const stockList = await fetchETFHoldings(limit);
+            
+            if (stockList.length === 0) {
+                btnScan.classList.remove('is-loading');
+                btnScan.disabled = false;
+                limitInput.disabled = false;
+                statusTag.className = 'tag is-danger';
+                statusTag.textContent = 'Failed';
+                return;
+            }
+
+            statusTag.textContent = 'Scanning...';
+            log(`Starting scan for ${stockList.length} symbols...`, "info");
+            let foundCount = 0;
+
+            for (let i = 0; i < stockList.length; i++) {
+                const item = stockList[i];
+                
+                // Update Progress
+                const progress = ((i + 1) / stockList.length) * 100;
+                progressBar.value = progress;
+
+                try {
+                    const stockData = await fetchStockData(item.symbol);
+                    const currentPrice = stockData.meta.regularMarketPrice;
+                    
+                    const sma100 = calculateSMA(stockData, 100);
+                    const medianReturn = calculateMedianAnnualReturn(stockData);
+                    
+                    // Logic: Price < 105% of SMA
+                    const threshold = sma100 * 1.05;
+                    const diffPercent = ((currentPrice - sma100) / sma100) * 100;
+
+                    if (currentPrice < threshold) {
+                        addTableRow(item.symbol, item.sector, currentPrice, sma100, medianReturn, diffPercent);
+                        foundCount++;
+                        log(`[MATCH] ${item.symbol}: $${currentPrice.toFixed(2)}`, "success");
+                    }
+
+                } catch (e) {
+                    if(!e.message.includes('404')) {
+                       log(`${item.symbol}: ${e.message}`, "warn");
+                    }
+                }
+                
+                // Throttle
+                await new Promise(r => setTimeout(r, 150));
+            }
+
+            btnScan.classList.remove('is-loading');
+            btnScan.disabled = false;
+            limitInput.disabled = false;
+            statusTag.className = 'tag is-success';
+            statusTag.textContent = 'Done';
+            
+            if(foundCount === 0) noResults.style.display = 'block';
+            setTimeout(() => { progressBar.style.display = 'none'; }, 2000);
+            log("Scan complete.", "success");
+        }
+
+        function addTableRow(symbol, sector, price, sma, medRet, diff) {
+            const tr = document.createElement('tr');
+            tr.className = 'fade-in';
+            
+            let diffClass = diff < 0 ? 'text-green' : 'text-warn';
+            let diffIcon = diff < 0 ? 'fa-arrow-down' : 'fa-arrow-up';
+
+            let medRetClass = medRet >= 0 ? 'text-green' : 'text-red';
+            
+            const sectorDisplay = sector.length > 20 ? sector.substring(0,18) + '...' : sector;
+
+            tr.innerHTML = `
+                <td>
+                    <a href="https://finance.yahoo.com/quote/${symbol}" target="_blank" class="stock-link">
+                        ${symbol}
+                    </a>
+                </td>
+                <td><span class="tag is-sector">${sectorDisplay}</span></td>
+                <td>$${price.toFixed(2)}</td>
+                <td>$${sma.toFixed(2)}</td>
+                <td class="${medRetClass} has-text-weight-bold">
+                    ${medRet.toFixed(2)}%
+                </td>
+                <td class="${diffClass}">
+                    <i class="fas ${diffIcon}" style="font-size: 0.7em"></i> 
+                    ${Math.abs(diff).toFixed(2)}%
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        }
+
+        btnScan.addEventListener('click', runScanner);
+
+        // --- Service Worker ---
+        if ('serviceWorker' in navigator) {
+            const swContent = `
+                self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
+                self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(fetch(e.request).catch(() => new Response('Offline')));
+                });
+            `;
+            const blob = new Blob([swContent], {type: 'text/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob))
+                .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>
