@@ -207,7 +207,8 @@
     <script>
         // --- Configuration ---
         const ISHARES_CSV_URL = "https://www.ishares.com/uk/individual/en/products/270054/ishares-msci-world-quality-factor-ucits-etf/1506575576011.ajax?fileType=csv&fileName=IWQU_holdings&dataType=fund";
-        const CORS_PROXY = "https://corsproxy.io/?"; 
+        //const CORS_PROXY = "https://corsproxy.io/?";
+        const CORS_PROXY = ["https://corsproxy.io/?", "https://api.allorigins.win/raw?url=", "https://thingproxy.freeboard.io/fetch/"][Math.floor(Math.random() * 3)]; 
         const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/";
         
         // --- UI Elements ---
