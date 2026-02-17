@@ -12,49 +12,48 @@
         body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; }
         .hero.is-dark { background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-dark); }
         .card { background-color: var(--card-dark); border: 1px solid var(--border-dark); color: var(--text-main); border-radius: 12px; }
-        .input, .button.is-dark { background-color: #020617; border-color: var(--border-dark); color: var(--text-main); }
-        .table { background-color: transparent; color: var(--text-main); }
-        .table thead th { color: var(--text-dim) !important; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-dark); }
-        .table td { border-bottom: 1px solid var(--border-dark); vertical-align: middle; }
-        #log-window { height: 200px; overflow-y: auto; background: #020617; border: 1px solid var(--border-dark); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.8rem; }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #1e293b; padding-bottom: 2px; }
+        .table thead th { color: var(--text-dim) !important; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-dark); }
+        .table td { border-bottom: 1px solid var(--border-dark); vertical-align: middle; font-size: 0.85rem; }
+        .modal-card { background-color: var(--card-dark); border: 1px solid var(--border-dark); }
+        .modal-card-head, .modal-card-foot { background-color: #020617; border-color: var(--border-dark); }
+        .modal-card-title { color: var(--text-main); font-size: 1rem; }
+        #log-container { height: 400px; overflow-y: auto; background: #020617; padding: 1rem; font-family: monospace; font-size: 0.75rem; }
+        .log-entry { margin-bottom: 6px; border-bottom: 1px solid #1e293b; padding-bottom: 4px; }
         .log-time { color: #64748b; margin-right: 8px; }
         .log-info { color: #818cf8; }
         .log-success { color: #10b981; }
         .log-error { color: #f43f5e; }
-        .progress.is-accent::-webkit-progress-value { background-color: var(--accent); }
-        .tag.is-relative { background-color: #1e293b; color: #10b981; font-weight: bold; }
+        .tag.is-relative { background-color: #1e293b; color: #10b981; font-weight: bold; font-size: 0.7rem; }
+        .table-container { overflow-x: auto; }
     </style>
 </head>
 <body>
-    <section class="hero is-dark is-small"><div class="hero-body"><div class="container"><div class="level is-mobile"><div class="level-left"><div class="mr-4"><span class="icon is-large has-text-info"><i class="fas fa-chart-line fa-2x"></i></span></div><div><h1 class="title is-4 has-text-white mb-0">IWQU Pro</h1><p class="subtitle is-7 has-text-grey-light">Vanilla PWA v1.0</p></div></div></div></div></div></section>
-    <div class="container px-4 py-6">
-        <div class="columns is-multiline">
-            <div class="column is-12"><div class="card p-5"><div class="columns is-mobile is-vcentered"><div class="column"><label class="label is-small has-text-grey">Scan Limit</label><input id="scan-limit" class="input is-small" type="number" value="100"></div><div class="column is-narrow pt-5"><button id="scan-btn" class="button is-info is-fullwidth px-6 has-text-weight-bold"><span class="icon"><i class="fas fa-rocket"></i></span><span>SCAN</span></button></div></div><div id="progress-container" class="mt-4 is-hidden"><div class="level is-mobile mb-2"><div class="level-left"><span id="status-text" class="is-size-7 has-text-grey">Ready</span></div></div><progress id="scan-progress" class="progress is-accent is-small" value="0" max="100"></progress></div></div></div>
-            <div class="column is-12 is-8-desktop"><div class="card p-0" style="overflow-x: auto;"><table class="table is-fullwidth is-hoverable mb-0"><thead><tr><th>Symbol</th><th>Price</th><th>Rel. SPY</th><th>Dist %</th></tr></thead><tbody id="results-body"><tr><td colspan="4" class="has-text-centered py-6 has-text-grey"><i class="fas fa-search-dollar fa-3x mb-4 opacity-50"></i><p>Start a scan to see quality value picks</p></td></tr></tbody></table></div></div>
-            <div class="column is-12 is-4-desktop"><div class="card p-4"><h3 class="title is-7 has-text-grey uppercase mb-3 tracking-widest">System Engine Logs</h3><div id="log-window"></div></div></div>
-        </div>
+    <section class="hero is-dark is-small"><div class="hero-body"><div class="container"><div class="level is-mobile"><div class="level-left"><div><h1 class="title is-5 has-text-white mb-0">IWQU Pro</h1><p class="subtitle is-7 has-text-grey-light">Mobile Screener</p></div></div><div class="level-right"><button id="toggle-logs" class="button is-dark is-small"><span class="icon"><i class="fas fa-list-ul"></i></span><span>LOGS</span></button></div></div></div></div></section>
+    <div class="container px-3 py-4">
+        <div class="card p-4"><div class="columns is-mobile is-vcentered"><div class="column"><label class="label is-small has-text-grey">Limit</label><input id="scan-limit" class="input is-small" type="number" value="100"></div><div class="column is-narrow pt-5"><button id="scan-btn" class="button is-info is-small px-5">SCAN</button></div></div><div id="progress-container" class="mt-3 is-hidden"><progress id="scan-progress" class="progress is-accent is-small" value="0" max="100"></progress></div></div>
+        <div class="card p-0 mt-4"><div class="table-container"><table class="table is-fullwidth is-hoverable"><thead><tr><th>Symbol</th><th>Sector</th><th>Price</th><th>100W SMA</th><th>Rel. SPY</th><th>Dist %</th></tr></thead><tbody id="results-body"><tr><td colspan="6" class="has-text-centered py-6">Run scan...</td></tr></tbody></table></div></div>
     </div>
+    <div id="logs-modal" class="modal"><div class="modal-background" id="modal-bg"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Logs</p><button class="delete" id="close-logs"></button></header><section class="modal-card-body p-0"><div id="log-container"></div></section><footer class="modal-card-foot"><button class="button is-small is-info" id="close-logs-btn">Close</button></footer></div></div>
     <script>
         const API_URL = 'https://iwqu-api.onrender.com/api/scan';
-        const scanBtn = document.getElementById('scan-btn'), limitInput = document.getElementById('scan-limit'), resultsBody = document.getElementById('results-body'), logWindow = document.getElementById('log-window'), progressContainer = document.getElementById('progress-container'), progressBar = document.getElementById('scan-progress'), statusText = document.getElementById('status-text');
-        function addLog(msg, type = 'info') { const entry = document.createElement('div'); entry.className = 'log-entry'; entry.innerHTML = `<span class="log-time">[${new Date().toLocaleTimeString()}]</span><span class="log-${type}">${msg}</span>`; logWindow.prepend(entry); }
+        const scanBtn = document.getElementById('scan-btn'), limitInput = document.getElementById('scan-limit'), resultsBody = document.getElementById('results-body'), logContainer = document.getElementById('log-container'), progressContainer = document.getElementById('progress-container'), progressBar = document.getElementById('scan-progress');
+        const logsModal = document.getElementById('logs-modal'), toggleLogs = document.getElementById('toggle-logs'), closeLogs = document.getElementById('close-logs'), closeLogsBtn = document.getElementById('close-logs-btn'), modalBg = document.getElementById('modal-bg');
+        function toggleModal() { logsModal.classList.toggle('is-active'); }
+        toggleLogs.addEventListener('click', toggleModal); [closeLogs, closeLogsBtn, modalBg].forEach(el => el.addEventListener('click', toggleModal));
+        function addLog(msg, type = 'info') { const entry = document.createElement('div'); entry.className = 'log-entry'; entry.innerHTML = `<span class="log-time">[${new Date().toLocaleTimeString()}]</span><span class="log-${type}">${msg}</span>`; logContainer.prepend(entry); }
         async function runScan() {
-            const limit = limitInput.value; scanBtn.classList.add('is-loading'); resultsBody.innerHTML = ''; progressContainer.classList.remove('is-hidden'); progressBar.value = 30; statusText.innerText = 'Connecting...';
+            const limit = limitInput.value; scanBtn.classList.add('is-loading'); resultsBody.innerHTML = ''; progressContainer.classList.remove('is-hidden'); progressBar.value = 20;
             try {
-                const r = await fetch(`${API_URL}?limit=${limit}`); if (!r.ok) throw new Error('API Error');
-                const json = await r.json(); const data = json.data || [];
-                progressBar.value = 100; statusText.innerText = `Found ${data.length} matches`;
-                if (data.length === 0) resultsBody.innerHTML = '<tr><td colspan="4" class="has-text-centered py-6">No matches</td></tr>';
-                else data.forEach(item => {
+                const r = await fetch(`${API_URL}?limit=${limit}`); const j = await r.json(); const data = j.data || [];
+                progressBar.value = 100;
+                data.forEach(item => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td><strong class="has-text-info">${item.symbol}</strong><br><small class="has-text-grey">${item.sector}</small></td><td>$${item.price.toFixed(2)}</td><td><span class="tag is-relative">${item.relativeReturn.toFixed(2)}x</span></td><td class="${item.diffPercent < 0 ? 'has-text-success' : 'has-text-warning'}">${item.diffPercent.toFixed(2)}%</td>`;
+                    row.innerHTML = `<td><strong>${item.symbol}</strong></td><td class="is-size-7">${item.sector}</td><td>$${item.price.toFixed(2)}</td><td class="has-text-grey">$${item.sma100.toFixed(2)}</td><td><span class="tag is-relative">${item.relativeReturn.toFixed(2)}x</span></td><td class="${item.diffPercent < 0 ? 'has-text-success' : 'has-text-warning'}">${item.diffPercent.toFixed(1)}%</td>`;
                     resultsBody.appendChild(row);
                 });
-            } catch (err) { addLog(err.message, 'error'); } finally { scanBtn.classList.remove('is-loading'); setTimeout(() => progressContainer.classList.add('is-hidden'), 3000); }
+            } catch (err) { addLog(err.message, 'error'); } finally { scanBtn.classList.remove('is-loading'); }
         }
         scanBtn.addEventListener('click', runScan);
-        if ('serviceWorker' in navigator) { const sw = "self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));"; navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw], {type: 'text/javascript'}))); }
     </script>
 </body>
 </html>
